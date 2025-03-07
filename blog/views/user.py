@@ -1,12 +1,14 @@
+# backend/blog/views.py
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from blog.models import User
 from blog.serializer.user import UserSerializer
 from django.core.exceptions import ValidationError
+from blog.utils.custom_response import custom_response  # 导入自定义响应函数
 
 
 class RegisterView(APIView):
@@ -23,18 +25,18 @@ class RegisterView(APIView):
 
         # 验证输入
         if not username or not password:
-            return Response({"error": "用户名和密码必填"}, status=status.HTTP_400_BAD_REQUEST)
+            return custom_response(status="error", message="用户名和密码必填", data=None, status_code=status.HTTP_400_BAD_REQUEST)
 
         if not email:
-            return Response({"error": "邮箱必填"}, status=status.HTTP_400_BAD_REQUEST)
+            return custom_response(status="error", message="邮箱必填", data=None, status_code=status.HTTP_400_BAD_REQUEST)
 
         # 检查用户名是否重复
         if User.objects.filter(username=username).exists():
-            return Response({"error": "用户名已存在"}, status=status.HTTP_400_BAD_REQUEST)
+            return custom_response(status="error", message="用户名已存在", data=None, status_code=status.HTTP_400_BAD_REQUEST)
 
         # 检查邮箱是否重复
         if User.objects.filter(email=email).exists():
-            return Response({"error": "邮箱已存在"}, status=status.HTTP_400_BAD_REQUEST)
+            return custom_response(status="error", message="邮箱已存在", data=None, status_code=status.HTTP_400_BAD_REQUEST)
 
         try:
             # 创建用户
@@ -42,14 +44,12 @@ class RegisterView(APIView):
             user.set_password(password)
             user.save()
             # 序列化返回信息
-            # 序列化返回用户信息
             serializer = UserSerializer(user)
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return custom_response(data=serializer.data, status_code=status.HTTP_201_CREATED)
         except ValidationError as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return custom_response(status="error", message=str(e), data=None, status_code=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": "注册失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="注册失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginView(APIView):
@@ -64,17 +64,17 @@ class LoginView(APIView):
 
         # 验证输入
         if not username or not password:
-            return Response({"error": "用户名和密码必填"}, status=status.HTTP_400_BAD_REQUEST)
+            return custom_response(status="error", message="用户名和密码必填", data=None, status_code=status.HTTP_400_BAD_REQUEST)
 
         try:
             # 查找用户
             user = User.objects.get(username=username)
             # 验证密码
             if not user.check_password(password):
-                return Response({"error": "用户名或密码错误"}, status=status.HTTP_401_UNAUTHORIZED)
+                return custom_response(status="error", message="用户名或密码错误", data=None, status_code=status.HTTP_401_UNAUTHORIZED)
 
             if not user.is_active:
-                return Response({"error": "用户已被禁用"}, status=status.HTTP_403_FORBIDDEN)
+                return custom_response(status="error", message="用户已被禁用", data=None, status_code=status.HTTP_403_FORBIDDEN)
 
             # 生成 JWT Token
             refresh = RefreshToken.for_user(user)
@@ -84,16 +84,16 @@ class LoginView(APIView):
             # 序列化用户信息
             serializer = UserSerializer(user)
 
-            return Response({
+            return custom_response(data={
                 "token": access_token,
                 "refresh_token": refresh_token,
                 "user": serializer.data
-            }, status=status.HTTP_200_OK)
+            }, status_code=status.HTTP_200_OK)
 
         except User.DoesNotExist:
-            return Response({"error": "用户名或密码错误"}, status=status.HTTP_401_UNAUTHORIZED)
+            return custom_response(status="error", message="用户名或密码错误", data=None, status_code=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
-            return Response({"error": "登录失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="登录失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserDetailView(APIView):
@@ -109,9 +109,9 @@ class UserDetailView(APIView):
             user = request.user  # 从认证中获取当前用户
             print('user', user)
             serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return custom_response(data=serializer.data, status_code=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": "获取用户信息失败"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="获取用户信息失败", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def put(self, request):
         """修改当前用户信息"""
@@ -120,7 +120,7 @@ class UserDetailView(APIView):
             serializer = UserSerializer(user, data=request.data, partial=True)  # 部分更新
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return custom_response(data=serializer.data, status_code=status.HTTP_200_OK)
+            return custom_response(status="error", message="参数错误", data=serializer.errors, status_code=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({"error": "修改失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="修改失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

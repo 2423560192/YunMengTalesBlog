@@ -1,10 +1,10 @@
 # backend/blog/views.py
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from blog.models import Post, Like, Bookmark
 from blog.serializer.like import LikeSerializer, CollectionSerializer
+from blog.utils.custom_response import custom_response  # 导入自定义响应函数
 
 
 class LikeView(APIView):
@@ -15,35 +15,35 @@ class LikeView(APIView):
         try:
             post_id = request.data.get('post_id')
             if not post_id:
-                return Response({"error": "post_id 不能为空"}, status=status.HTTP_400_BAD_REQUEST)
+                return custom_response(status="error", message="post_id 不能为空", data=None, status_code=status.HTTP_400_BAD_REQUEST)
             # 校验文章是否存在且已发布
             post = Post.objects.get(id=post_id, is_published=True)
             user = request.user
             # 检查用户是否已点赞
             like, created = Like.objects.get_or_create(user=user, post=post)
             if not created:
-                return Response({"error": "已点赞，无需重复操作"}, status=status.HTTP_400_BAD_REQUEST)
+                return custom_response(status="error", message="已点赞，无需重复操作", data=None, status_code=status.HTTP_400_BAD_REQUEST)
             serializer = LikeSerializer(like)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return custom_response(data=serializer.data, status_code=status.HTTP_201_CREATED)
         except Post.DoesNotExist:
-            return Response({"error": "文章不存在或未发布"}, status=status.HTTP_404_NOT_FOUND)
+            return custom_response(status="error", message="文章不存在或未发布", data=None, status_code=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(e)
-            return Response({"error": "点赞失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="点赞失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, id):
         """取消指定点赞"""
         try:
             like = Like.objects.get(id=id)
             if like.user != request.user:
-                return Response({"error": "无权限取消此点赞"}, status=status.HTTP_403_FORBIDDEN)
+                return custom_response(status="error", message="无权限取消此点赞", data=None, status_code=status.HTTP_403_FORBIDDEN)
             like.delete()
-            return Response({'msg': '取消成功'}, status=status.HTTP_204_NO_CONTENT)
+            return custom_response(message="取消成功", data={}, status_code=status.HTTP_204_NO_CONTENT)
         except Like.DoesNotExist:
-            return Response({"error": "点赞记录不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return custom_response(status="error", message="点赞记录不存在", data=None, status_code=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(e)
-            return Response({"error": "取消点赞失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="取消点赞失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CollectionView(APIView):
@@ -54,32 +54,32 @@ class CollectionView(APIView):
         try:
             post_id = request.data.get('post_id')
             if not post_id:
-                return Response({"error": "post_id 不能为空"}, status=status.HTTP_400_BAD_REQUEST)
+                return custom_response(status="error", message="post_id 不能为空", data=None, status_code=status.HTTP_400_BAD_REQUEST)
             # 校验文章是否存在且已发布
             post = Post.objects.get(id=post_id, is_published=True)
             user = request.user
             # 检查用户是否已收藏
             collection, created = Bookmark.objects.get_or_create(user=user, post=post)
             if not created:
-                return Response({"error": "已收藏，无需重复操作"}, status=status.HTTP_400_BAD_REQUEST)
+                return custom_response(status="error", message="已收藏，无需重复操作", data=None, status_code=status.HTTP_400_BAD_REQUEST)
             serializer = CollectionSerializer(collection)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return custom_response(data=serializer.data, status_code=status.HTTP_201_CREATED)
         except Post.DoesNotExist:
-            return Response({"error": "文章不存在或未发布"}, status=status.HTTP_404_NOT_FOUND)
+            return custom_response(status="error", message="文章不存在或未发布", data=None, status_code=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(e)
-            return Response({"error": "收藏失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="收藏失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, id):
         """取消指定收藏"""
         try:
             collection = Bookmark.objects.get(id=id)
             if collection.user != request.user:
-                return Response({"error": "无权限取消此收藏"}, status=status.HTTP_403_FORBIDDEN)
+                return custom_response(status="error", message="无权限取消此收藏", data=None, status_code=status.HTTP_403_FORBIDDEN)
             collection.delete()
-            return Response({'msg': '取消成功'}, status=status.HTTP_204_NO_CONTENT)
+            return custom_response(message="取消成功", data={}, status_code=status.HTTP_204_NO_CONTENT)
         except Bookmark.DoesNotExist:
-            return Response({"error": "收藏记录不存在"}, status=status.HTTP_404_NOT_FOUND)
+            return custom_response(status="error", message="收藏记录不存在", data=None, status_code=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print(e)
-            return Response({"error": "取消收藏失败，请重试"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return custom_response(status="error", message="取消收藏失败，请重试", data=None, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
