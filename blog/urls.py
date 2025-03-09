@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
+from blog.views.category import CategoryListView
 from blog.views.like import LikeView, CollectionView
 from blog.views.post import PostListCreateView, PostDetailView
 from blog.views.user import RegisterView, LoginView, UserDetailView
@@ -27,6 +28,9 @@ urlpatterns = [
     # 收藏相关
     path('collect/', CollectionView.as_view(), name='collect-create'),  # 收藏文章
     path('collect/<int:id>/', CollectionView.as_view(), name='collect-delete'),  # 取消收藏
+
+    # 分类相关
+    path('categories/', CategoryListView.as_view(), name='category'),  # 获取所有分类
 ]
 
 # 开发模式下提供静态文件
