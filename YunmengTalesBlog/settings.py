@@ -26,11 +26,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
     'rest_framework',
-    'rest_framework_simplejwt'
+    'rest_framework_simplejwt',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # 添加 CORS 中间件，确保在 CommonMiddleware 之前
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -109,7 +111,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# 静态文件配置
+STATIC_URL = '/static/'
+# 静态文件查找目录（开发时使用）
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # 指向项目根目录下的 static 文件夹
+]
+# 静态文件收集目录（运行 collectstatic 时使用）
+STATIC_ROOT = BASE_DIR / "staticfiles"  # 收集后的静态文件存放目录
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -131,3 +140,40 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'USER_ID_FIELD': 'id',  # 如果用户主键字段是uuid
 }
+
+
+
+# CORS配置
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # 开发环境下允许所有域名访问
+# 生产环境建议使用以下配置指定允许的域名
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8080",
+#     "http://127.0.0.1:8080",
+# ]
+
+# 允许携带认证信息
+CORS_ALLOW_CREDENTIALS = True
+
+# 允许的HTTP方法
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# 允许的请求头
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]

@@ -1,3 +1,4 @@
+import json
 
 from rest_framework.views import APIView
 from rest_framework import status
@@ -31,8 +32,8 @@ class PostListCreateView(APIView):
             "previous": paginator.get_previous_link(),  # 上一页链接
             "results": serializer.data  # 当前页的数据
         }
-
-        return custom_response(data=paginated_data, status_code=status.HTTP_200_OK)
+        print('请求：' , json.dumps(serializer.data))
+        return custom_response(data=serializer.data, status_code=status.HTTP_200_OK)
 
     def post(self, request):
         """创建新文章"""

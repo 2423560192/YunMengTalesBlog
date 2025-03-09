@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 
 from blog.views.like import LikeView, CollectionView
@@ -26,3 +28,7 @@ urlpatterns = [
     path('collect/', CollectionView.as_view(), name='collect-create'),  # 收藏文章
     path('collect/<int:id>/', CollectionView.as_view(), name='collect-delete'),  # 取消收藏
 ]
+
+# 开发模式下提供静态文件
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
