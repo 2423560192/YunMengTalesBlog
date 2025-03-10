@@ -8,7 +8,7 @@ class CommentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     post_id = serializers.IntegerField()
     # parent_id = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), allow_null=True, required=False,)
-    parent_id = serializers.IntegerField(required=False)
+    parent_id = serializers.IntegerField(required=False ,allow_null = True)
     children = serializers.SerializerMethodField()
 
     class Meta:

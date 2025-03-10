@@ -26,6 +26,7 @@ class CommentListView(APIView):
             post = Post.objects.get(id=post_id, is_published=True)
             # 获取评论，按创建时间倒序
             comments = Comment.objects.filter(post=post).order_by('-created_at')
+
             # 分页
             paginator = CommentPagination()
             page = paginator.paginate_queryset(comments, request)

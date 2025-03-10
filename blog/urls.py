@@ -2,9 +2,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
 
-from blog.views.category import CategoryListView
+from blog.views.category import CategoryListView, CategoryPostCountView
 from blog.views.like import LikeView, CollectionView
-from blog.views.post import PostListCreateView, PostDetailView
+from blog.views.post import PostListCreateView, PostDetailView, PostFilterView
+from blog.views.tag import TagListView
 from blog.views.user import RegisterView, LoginView, UserDetailView
 from blog.views.comment import CommentListView, CommentDeleteView
 
@@ -13,9 +14,11 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('user/', UserDetailView.as_view(), name='user'),
+
     # 文章相关
     path('posts/', PostListCreateView.as_view(), name='post'),
     path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),  # 详情获取和更新
+    path('posts/filter/', PostFilterView.as_view(), name='post_filter'),  # 过滤文章
 
     # 评论相关
     path('comments/', CommentListView.as_view(), name='comment'),
@@ -31,6 +34,10 @@ urlpatterns = [
 
     # 分类相关
     path('categories/', CategoryListView.as_view(), name='category'),  # 获取所有分类
+    path('categories/count-posts/', CategoryPostCountView.as_view(), name='category_post_count'),
+
+    # 标签相关
+    path('tags/', TagListView.as_view(), name='tag_list'),
 ]
 
 # 开发模式下提供静态文件
