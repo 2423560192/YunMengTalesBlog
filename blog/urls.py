@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.urls import path
 
 from blog.views.category import CategoryListView, CategoryPostCountView
-from blog.views.like import LikeView, CollectionView
+from blog.views.like import LikeView, CollectionView, PostLikeStatusView, PostCollectStatusView
 from blog.views.post import PostListCreateView, PostDetailView, PostFilterView
 from blog.views.tag import TagListView
 from blog.views.user import RegisterView, LoginView, UserDetailView
@@ -27,10 +27,12 @@ urlpatterns = [
     # 点赞相关
     path('like/', LikeView.as_view(), name='like-create'),  # 点赞文章
     path('like/<int:id>/', LikeView.as_view(), name='like-delete'),  # 取消点赞
+    path('like/status/<int:pk>/', PostLikeStatusView.as_view(), name='like_status'),
 
     # 收藏相关
     path('collect/', CollectionView.as_view(), name='collect-create'),  # 收藏文章
     path('collect/<int:id>/', CollectionView.as_view(), name='collect-delete'),  # 取消收藏
+    path('collect/status/<int:pk>/', PostCollectStatusView.as_view(), name='collect_status'),
 
     # 分类相关
     path('categories/', CategoryListView.as_view(), name='category'),  # 获取所有分类
