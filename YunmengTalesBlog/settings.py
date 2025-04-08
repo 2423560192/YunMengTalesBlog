@@ -142,8 +142,6 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',  # 如果用户主键字段是uuid
 }
 
-
-
 # CORS配置
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True  # 开发环境下允许所有域名访问
@@ -178,3 +176,8 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+try:
+    from local_settings import *
+except:
+    pass
