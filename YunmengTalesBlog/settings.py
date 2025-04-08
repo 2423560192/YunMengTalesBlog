@@ -70,7 +70,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'YunmengBlog',
-        'USER': 'root',
+        'USER': 'yunmeng',
         'PASSWORD': '5201314',
         'HOST': 'localhost',
         'PORT': '3306',
@@ -178,6 +178,6 @@ CORS_ALLOW_HEADERS = [
 ]
 
 try:
-    from local_settings import *
+    from .local_settings import *
 except:
     pass
